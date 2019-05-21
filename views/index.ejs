@@ -1,0 +1,25 @@
+<%include ./partials/header.ejs%>
+<link rel="stylesheet" type="text/css" href="css/index.css" />
+<div class="jumbotron">
+    <h2>The Travellers' Arena!</h2>
+    <p>Great things never came from comfort zones.</p>
+    <a href="/camps/new" class="btn btn-md btn-basic"> List your CampGround! </a>
+    <hr>
+    <small>Go ahead and feast at some less-known campgrounds from around the world.</small>
+</div>
+
+<div class='row'>
+        <% camps.forEach(camp => { %>
+        <div class='col-md-4 col-sm-12 text-center campdiv'>
+            <div class='thumbnail'>
+                <img class='img-rounded img-responsive' src='<%=camp.image%>'>
+                <div class='caption'><h4><%=camp.name%></h4></div>
+                <div class='caption'><small><%=camp.caption%></small></div>
+                <div>
+                    <a href="/camps/<%=camp._id%>" class="btn btn-md btn-basic">More Info</a>
+                </div>
+            </div>
+        </div>
+        <%});%>
+</div>
+<%include ./partials/footer.ejs%>
