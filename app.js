@@ -240,6 +240,6 @@ function isLoggedIn(req, res, next) {
     }
     res.redirect('/login')
 }
-app.listen(process.env.PORT||3001, function () {
+app.listen(process.env.PORT || 3001, function () {
     console.log('Yelp is up and running on 3001!')
 })
