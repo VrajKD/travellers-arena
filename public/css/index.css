@@ -1,35 +1,37 @@
-.thumbnail{        
+.thumbnail {
     vertical-align: middle;
     height: 80%;
     margin: 0;
-    padding-top:10px; 
-    padding-bottom:10px;
+    padding-top: 10px;
+    padding-bottom: 10px;
 }
 
-.thumbnail img{
+.thumbnail img {
     width: 80%;
     height: 80%;
-    margin:0px auto;
+    margin: 0px auto;
     display: block;
-    margin-bottom:5px;
+    margin-bottom: 5px;
     border-radius: 5px;
-    
+
 }
-.campdiv{
+
+.campdiv {
     border-bottom: 0.5px solid #e0e0e0;
     border-right: 0.5px solid #e0e0e0;
 }
-.campdiv:nth-of-type(3){
+
+.campdiv:nth-of-type(3) {
     border-right: none;
 }
 
-.btn{
-    margin:10px 0;
+.btn {
+    margin: 10px 0;
     background: whitesmoke;
-    border:0.5px solid black;
+    border: 0.5px solid black;
 }
 
-.btn:hover{
-    background:#212529;
+.btn:hover {
+    background: #212529;
     color: whitesmoke;
 }
