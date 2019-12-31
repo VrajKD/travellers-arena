@@ -1,3 +1,4 @@
+require('dotenv').config()
 var express = require("express");
 var app = express();
 var bodyParser = require("body-parser");
@@ -33,29 +34,28 @@ app.use(passport.session());
 passport.use(new passportLocal(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
-
+const mongopass = process.env.MONGO_PASS;
 //Connecting to Atlas Database
 mongoose.connect(
-  "mongodb+srv://vrajdugar:Prasad@1101@todocluster-r2fqe.mongodb.net/Yelp?retryWrites=true",
-  {
-    useNewUrlParser: true,
-    useCreateIndex: true
-  }
+  "mongodb+srv://vrajdugar:" + mongopass + "@todocluster-r2fqe.mongodb.net/Yelp?retryWrites=true", {
+  useNewUrlParser: true,
+  useCreateIndex: true
+}
 );
 
 //TO MAKE SOME VARIABLE AVAILABLE AS MIDDLEWARE EVERYWHERE
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   res.locals.currentUser = req.user;
   next();
 });
 
-app.get("/", function(req, res) {
+app.get("/", function (req, res) {
   res.redirect("/camps");
 });
 
 //INDEX PAGE (GET)
-app.get("/camps", function(req, res) {
-  CG.find({}, function(err, camps) {
+app.get("/camps", function (req, res) {
+  CG.find({}, function (err, camps) {
     res.render("index", {
       camps: camps,
       currentUser: req.user
@@ -64,14 +64,14 @@ app.get("/camps", function(req, res) {
 });
 
 //NEW CAMP FORM (GET)
-app.get("/camps/new", isLoggedIn, function(req, res) {
+app.get("/camps/new", isLoggedIn, function (req, res) {
   res.render("newCamp", {
     error: ""
   });
 });
 
 //CREATE CAMP (POST)
-app.post("/camps", isLoggedIn, function(req, res) {
+app.post("/camps", isLoggedIn, function (req, res) {
   if (req.body.camp.name == "") {
     res.render("newCamp", {
       error: "<strong>X  Error! </strong> Name not entered."
@@ -81,9 +81,11 @@ app.post("/camps", isLoggedIn, function(req, res) {
       id: req.user._id,
       username: req.user.username
     };
-    CG.create(req.body.camp, function(err, camp) {
+    CG.create(req.body.camp, function (err, camp) {
       if (err) {
-        res.render("newCamp");
+        res.render("newCamp", {
+          error: "<strong>X  Server Error! </strong>"
+        });
       } else {
         res.redirect("/camps");
       }
@@ -92,46 +94,45 @@ app.post("/camps", isLoggedIn, function(req, res) {
 });
 
 //SHOW CAMP DETAILS (GET)
-app.get("/camps/:id", function(req, res) {
+app.get("/camps/:id", function (req, res) {
   CG.findById(req.params.id)
     .populate("comments")
-    .exec(function(err, camp) {
+    .exec(function (err, camp) {
       res.render("showCamp", {
         camp: camp
       });
     });
 });
 
-//EDIT CAMP FORM (GET)
-app.get("/camps/:id/edit", function(req, res) {
-  CG.findById(req.params.id, function(err, camp) {
-    if (camp.author.username == req.user.username) {
-      res.render("editCamp", {
-        camp: camp,
-        error: ""
-      });
-    } else {
-      res.redirect("/camps/" + req.params.id);
-    }
-  });
-});
+// //EDIT CAMP FORM (GET)
+// app.get("/camps/:id/edit", function (req, res) {
+//   CG.findById(req.params.id, function (err, camp) {
+//     if (camp.author.username == req.user.username) {
+//       res.render("editCamp", {
+//         camp: camp,
+//         error: ""
+//       });
+//     } else {
+//       res.redirect("/camps/" + req.params.id);
+//     }
+//   });
+// });
 
 //UPDATE CAMP (PUT)
-app.put("/camps/:id", function(req, res) {
+app.put("/camps/:id", function (req, res) {
   if (req.body.camp.name == "") {
     res.render("editCamp", {
       camp: req.body.camp,
       error: "<strong>X   Error! </strong> Name not entered."
     });
   } else {
-    CG.findById(req.params.id, function(err, camp) {
+    CG.findById(req.params.id, function (err, camp) {
       if (camp.author.username == req.user.username) {
-        CG.findOneAndUpdate(
-          {
-            _id: req.params.id
-          },
+        CG.findOneAndUpdate({
+          _id: req.params.id
+        },
           req.body.camp,
-          function(err, camp) {
+          function (err, camp) {
             res.redirect("/camps/" + req.params.id);
           }
         );
@@ -143,14 +144,13 @@ app.put("/camps/:id", function(req, res) {
 });
 
 //DESTROY CAMP (DELETE)
-app.delete("/camps/:id", function(req, res) {
-  CG.findById(req.params.id, function(err, camp) {
+app.delete("/camps/:id", function (req, res) {
+  CG.findById(req.params.id, function (err, camp) {
     if (camp.author.username == req.user.username) {
-      CG.findOneAndDelete(
-        {
-          _id: req.params.id
-        },
-        function(err, camp) {
+      CG.findOneAndDelete({
+        _id: req.params.id
+      },
+        function (err, camp) {
           res.redirect("/camps");
         }
       );
@@ -163,19 +163,19 @@ app.delete("/camps/:id", function(req, res) {
 // ==========================================
 // COMMENT ROUTES
 // ===========================================
-app.get("/camps/:id/comments/new", isLoggedIn, function(req, res) {
-  CG.findById(req.params.id, function(err, camp) {
-    res.render("newComment", {
-      camp: camp,
-      error: ""
-    });
-  });
-});
+// app.get("/camps/:id/comments/new", isLoggedIn, function (req, res) {
+//   CG.findById(req.params.id, function (err, camp) {
+//     res.render("newComment", {
+//       camp: camp,
+//       error: ""
+//     });
+//   });
+// });
 
-app.post("/camps/:id/comments", isLoggedIn, function(req, res) {
-  CG.findById(req.params.id, function(err, camp) {
+app.post("/camps/:id/comments", isLoggedIn, function (req, res) {
+  CG.findById(req.params.id, function (err, camp) {
     req.body.comment.author = req.user.username;
-    Comment.create(req.body.comment, function(err, comment) {
+    Comment.create(req.body.comment, function (err, comment) {
       comment.author.id = req.user._id;
       comment.author.username = req.user.username;
       comment.save();
@@ -186,17 +186,16 @@ app.post("/camps/:id/comments", isLoggedIn, function(req, res) {
   });
 });
 
-app.get("/camps/:campid/comments/:commentid", function(req, res) {
-  CG.findById(req.params.campid, function(err, camp) {
-    Comment.findById(req.params.commentid, function(err, comment) {
+app.get("/camps/:campid/comments/:commentid", function (req, res) {
+  CG.findById(req.params.campid, function (err, camp) {
+    Comment.findById(req.params.commentid, function (err, comment) {
       if (comment.author.username == req.user.username) {
         // camp.comments.splice(comment,1);
         // camp.save();
-        Comment.findOneAndDelete(
-          {
-            _id: req.params.commentid
-          },
-          function(err, comm) {
+        Comment.findOneAndDelete({
+          _id: req.params.commentid
+        },
+          function (err, comm) {
             res.redirect("/camps/" + req.params.campid);
           }
         );
@@ -211,21 +210,21 @@ app.get("/camps/:campid/comments/:commentid", function(req, res) {
 // AUTH ROUTES
 // ======================================
 //-----------REGISTER-------------------
-app.get("/register", function(req, res) {
+app.get("/register", function (req, res) {
   res.render("register");
 });
 
-app.post("/register", function(req, res) {
+app.post("/register", function (req, res) {
   User.register(
     new User({
       username: req.body.username
     }),
     req.body.password,
-    function(err, user) {
+    function (err, user) {
       if (err) {
         return res.redirect("/register");
       }
-      passport.authenticate("local")(req, res, function() {
+      passport.authenticate("local")(req, res, function () {
         res.redirect("/camps");
       });
     }
@@ -233,7 +232,7 @@ app.post("/register", function(req, res) {
 });
 
 //-----------LOGIN-------------------
-app.get("/login", function(req, res) {
+app.get("/login", function (req, res) {
   res.render("login");
 });
 
@@ -243,11 +242,11 @@ app.post(
     successRedirect: "/camps",
     failureRedirect: "/login"
   }),
-  function(req, res) {}
+  function (req, res) { }
 );
 
 //-----------LOGOUT-------------------
-app.get("/logout", function(req, res) {
+app.get("/logout", function (req, res) {
   req.logout();
   res.redirect("/camps");
 });
@@ -260,6 +259,6 @@ function isLoggedIn(req, res, next) {
   }
   res.redirect("/login");
 }
-app.listen(process.env.PORT || 3001, function() {
+app.listen(process.env.PORT || 3001, function () {
   console.log("Yelp is up and running on 3001!");
 });
